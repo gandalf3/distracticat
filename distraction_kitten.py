@@ -4,11 +4,13 @@ import logging
 import random
 import time
 
+from dataclasses import dataclass
+
 import discord
 import yaml
 
 import sqlalchemy as sa
-import sqlalchemy.orm as orm
+from sqlalchemy import orm
 
 from discord.ext import commands
 
@@ -32,30 +34,41 @@ class Distraction(Base):
     description = sa.Column(sa.String)
 
 
+@dataclass
 class Server:
     name: str
     guild_id: int
 
-    def __init__(self, name: str, guild_id: int):
-        self.name = name
-        self.guild_id = guild_id
 
+@dataclass
+class Config:
+    servers: list[Server]
 
-with open("config.yaml") as f:
-    config = yaml.safe_load(f)
+    reactions: list[str]
+    noises: list[str]
 
-servers = [Server(sv["name"], sv["guild_id"]) for sv in config["servers"]]
+    @classmethod
+    def load(cls):
+        with open("config.yaml") as f:
+            config = yaml.safe_load(f)
 
-guild_ids = [s.guild_id for s in servers]
+        servers = [Server(sv["name"], sv["guild_id"]) for sv in config["servers"]]
+
+        with open("reactions.txt") as f:
+            reactions = f.read().splitlines()
+        with open("noises.txt") as f:
+            noises = f.read().splitlines()
+
+        return cls(servers, reactions, noises)
+
+    def guild_ids(self) -> list[int]:
+        return [sv.guild_id for sv in self.servers]
+
 
 with open("secret.yaml") as f:
-    secrets = yaml.safe_load(f)
-    secret_token = secrets["token"]
+    secret_token = yaml.safe_load(f)["token"]
 
-with open("reactions.txt") as f:
-    reactions = f.read().splitlines()
-with open("noises.txt") as f:
-    noises = f.read().splitlines()
+config = Config.load()
 
 bot = commands.Bot(command_prefix="!")
 
@@ -63,7 +76,7 @@ bot = commands.Bot(command_prefix="!")
 @bot.command()
 async def distracticat(ctx: commands.Context, *, description: str):
     await ctx.channel.send(
-        random.choice(reactions).replace("<noise>", random.choice(noises))
+        random.choice(config.reactions).replace("<noise>", random.choice(config.noises))
     )
 
     async with ctx.channel.typing():
@@ -80,7 +93,7 @@ async def distracticat(ctx: commands.Context, *, description: str):
     await ctx.message.reply(embed=embed)
 
 
-# @bot.slash_command(guild_ids=guild_ids)
+# @bot.slash_command(guild_ids=config.guild_ids())
 # async def distracticat_scmd(ctx: discord.ApplicationContext):
 #     pass
 
