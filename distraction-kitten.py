@@ -44,6 +44,19 @@ async def distracticat(ctx: commands.Context, *, distraction: str):
     )
     await ctx.message.reply(embed=embed)
 
+@bot.command()
+async def choose(ctx: commands.Context, *, choices_str: str):
+    choices = [ choice.strip().rstrip("?") for choice in choices_str.split("or") ]
+
+    if (len(choices) == 0):
+        await ctx.reply(f"That's a tough decision you're asking me to make you know. Let me get back to you on that one.")
+    elif (len(choices) == 1):
+        await ctx.reply(f"That's a sound decision {ctx.author}")
+    else:
+        chosen = random.choice(choices)
+        await ctx.reply(f"Hm.. :thinking: I say go with {chosen}.");
+
+
 
 @bot.slash_command(guild_ids=servers)
 async def distracticat_scmd(ctx: discord.ApplicationContext, number: int):
