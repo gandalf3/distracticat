@@ -1,10 +1,15 @@
 aiohttp==3.7.4.post0
+alembic==1.7.6
 async-timeout==3.0.1
 attrs==21.4.0
 chardet==4.0.0
+greenlet==1.1.2
 idna==3.3
+Mako==1.1.6
+MarkupSafe==2.1.0
 multidict==6.0.2
 py-cord==2.0.0b4
 PyYAML==6.0
+SQLAlchemy==1.4.31
 typing_extensions==4.1.1
 yarl==1.7.2

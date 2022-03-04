@@ -1,21 +1,52 @@
 #!/usr/bin/env python3
 
-import asyncio
-import discord
-from discord.ext import commands
 import logging
 import random
+import time
+
+import discord
 import yaml
+
+import sqlalchemy as sa
+import sqlalchemy.orm as orm
+
+from discord.ext import commands
 
 logging.basicConfig(level=logging.INFO)
 log = logging
 
+engine: sa.engine.Engine = sa.create_engine(
+    "sqlite+pysqlite:///database.db", echo=True, future=True
+)
+
+mapper_registery = orm.registry()
+Base = mapper_registery.generate_base()
+
+
+class Distraction(Base):
+    __tablename__ = "distraction"
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    guild_id = sa.Column(sa.Integer, nullable=False)
+    timestamp = sa.Column(sa.Integer)
+    description = sa.Column(sa.String)
+
+
+class Server:
+    name: str
+    guild_id: int
+
+    def __init__(self, name: str, guild_id: int):
+        self.name = name
+        self.guild_id = guild_id
+
 
 with open("config.yaml") as f:
     config = yaml.safe_load(f)
-    servers = config["servers"]
 
-guild_ids = [s["guild_id"] for s in servers]
+servers = [Server(sv["name"], sv["guild_id"]) for sv in config["servers"]]
+
+guild_ids = [s.guild_id for s in servers]
 
 with open("secret.yaml") as f:
     secrets = yaml.safe_load(f)
@@ -30,27 +61,28 @@ bot = commands.Bot(command_prefix="!")
 
 
 @bot.command()
-async def distracticat(ctx: commands.Context, *, distraction: str):
-    async def sleep_type(sleep_time, type_time):
-        await asyncio.sleep(sleep_time)
-        async with ctx.channel.typing():
-            await asyncio.sleep(type_time)
-
-    await sleep_type(0.2, 0.3)
+async def distracticat(ctx: commands.Context, *, description: str):
     await ctx.channel.send(
         random.choice(reactions).replace("<noise>", random.choice(noises))
     )
 
-    await sleep_type(0.5, 0.3)
+    async with ctx.channel.typing():
+        distraction = Distraction(
+            guild_id=ctx.guild.id, timestamp=int(time.time()), description=description
+        )
+        with orm.Session(engine) as session:
+            session.add(distraction)
+            session.commit()
+
     embed = discord.Embed(
-        title="new distraction!", description=distraction, color=discord.Color.purple()
+        title="new distraction!", description=description, color=discord.Color.purple()
     )
     await ctx.message.reply(embed=embed)
 
 
-@bot.slash_command(guild_ids=guild_ids)
-async def distracticat_scmd(ctx: discord.ApplicationContext, number: int):
-    await ctx.respond(number)
+# @bot.slash_command(guild_ids=guild_ids)
+# async def distracticat_scmd(ctx: discord.ApplicationContext):
+#     pass
 
 
 @bot.event
