@@ -9,5 +9,12 @@ jobs:
       with:
         webhook-url: ${{ secrets.WEBHOOK_URL }}
         content: ${{ github.event_name }} ${{ github.sha }}
+        embed-title: title
+        embed-author: author
+        embed-author-icon-url: title
+        embed-description: description
+        embed-timestamp: timestamp
+        embed-color: 1
+        embed-footer-text: footer text
 
 
