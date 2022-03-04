@@ -4,18 +4,21 @@ import asyncio
 import discord
 from discord.ext import commands
 import logging
-import json
 import random
+import yaml
 
 logging.basicConfig(level=logging.INFO)
 log = logging
 
 
-with open("config.json") as f:
-    config = json.load(f)
-    servers = config["servers"].values()
+with open("config.yaml") as f:
+    config = yaml.safe_load(f)
+    servers = config["servers"]
+
+guild_ids = [s["guild_id"] for s in servers]
+
 with open("secret.json") as f:
-    secrets = json.load(f)
+    secrets = yaml.safe_load(f)
     secret_token = secrets["token"]
 
 with open("reactions.txt") as f:
@@ -45,7 +48,7 @@ async def distracticat(ctx: commands.Context, *, distraction: str):
     await ctx.message.reply(embed=embed)
 
 
-@bot.slash_command(guild_ids=servers)
+@bot.slash_command(guild_ids=guild_ids)
 async def distracticat_scmd(ctx: discord.ApplicationContext, number: int):
     await ctx.respond(number)
 
