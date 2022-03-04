@@ -13,9 +13,10 @@ log = logging
 
 with open("config.json") as f:
     config = json.load(f)
-    secret_token = config["token"]
     servers = config["servers"].values()
-
+with open("secret.json") as f:
+    secrets = json.load(f)
+    secret_token = secrets["token"]
 
 with open("reactions.txt") as f:
     reactions = f.read().splitlines()
