@@ -17,7 +17,7 @@ with open("config.yaml") as f:
 
 guild_ids = [s["guild_id"] for s in servers]
 
-with open("secret.json") as f:
+with open("secret.yaml") as f:
     secrets = yaml.safe_load(f)
     secret_token = secrets["token"]
 
