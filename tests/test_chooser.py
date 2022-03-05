@@ -41,23 +41,28 @@ def test_five_or():
 
 def test_weird_or():
     choices, feedback = chooser.parse_choices("or thing or")
-    assert choices == ["thing", "or"]
+    assert choices == ["thing", ""]
+    assert feedback is None
 
 def test_weird_or2():
     choices, feedback = chooser.parse_choices("or or thing or")
-    assert choices is ["thing", ""]
+    assert choices == ["thing", ""]
+    assert feedback is None
 
 def test_weird_or3():
     choices, feedback = chooser.parse_choices("or or or thing or")
     assert choices == ["thing", ""]
+    assert feedback is None
 
 def test_weird_or4():
     choices, feedback = chooser.parse_choices("or thing or or or")
     assert choices == ["thing", ""]
+    assert feedback is None
 
 def test_only_question():
     choices, feedback = chooser.parse_choices("? or ?")
     assert choices == ["?", "?"]
+    assert feedback is None
 
 def test_leading_question():
     choices, feedback = chooser.parse_choices("?ok??? or ?")

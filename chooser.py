@@ -75,7 +75,7 @@ def parse_choices(choices_str: str) -> tuple[Optional[list], Optional[str]]:
         else:
             num_choosable_ors = (num_ors+1)//2
             perc_chance = "{:.0%}".format(1/(num_choosable_ors+1))
-            facts += " the only real choices are or and nothing! ..with a {perc_chance}chance of picking nothing hehe"
+            facts += f" the only real choices are or and nothing! ..with a {perc_chance} chance of picking nothing hehe"
             choices = ["or"]*num_choosable_ors + ['']
 
         feedback = f"h..hey you aren't trying to confuse me are you ??? w..well it wont work!!! I know {facts} {kaomoji.confident()}"
@@ -87,6 +87,13 @@ def parse_choices(choices_str: str) -> tuple[Optional[list], Optional[str]]:
 
     # or and ? and other things
     else:
+        # remove all empty entries and remove all-but-one empty entries after
+        # the last non-empty
+        should_add_empty = choices[-1] == ''
+        choices = [ choice for choice in choices if choice != '']
+        if (should_add_empty):
+            choices += ['']
+
         # rstrip questions marks and whitespace from each choice only if there
         # are no question marks before the last non-whitespace-questionmark
         # character
