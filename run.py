@@ -11,20 +11,20 @@ from sqlalchemy import orm
 
 from discord.ext import commands
 
-from config import Config
-import model
+from bot.config import Config
+from bot import model
 
 logging.basicConfig(level=logging.INFO)
 log = logging
 
-config = Config.load()
+config = Config()
 
 engine: sa.engine.Engine = sa.create_engine(
     "sqlite+pysqlite:///database.db", echo=True, future=True
 )
 
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix=config.command_prefix)
 
 
 @bot.command()
