@@ -29,12 +29,19 @@ bot = commands.Bot(command_prefix="!")
 
 @bot.command()
 async def distracticat(ctx: commands.Context, *, description: str):
+    author_id, message_id = ctx.author.id, ctx.message.id
+
     await ctx.channel.send(
         random.choice(config.reactions).replace("<noise>", random.choice(config.noises))
     )
 
     async with ctx.channel.typing():
-        distraction = model.Distraction(guild_id=ctx.guild.id, description=description)
+        distraction = model.Distraction(
+            guild_id=ctx.guild.id,
+            description=description,
+            author_id=author_id,
+            message_id=message_id,
+        )
         with orm.Session(engine) as session:
             session.add(distraction)
             session.commit()
@@ -42,6 +49,7 @@ async def distracticat(ctx: commands.Context, *, description: str):
     embed = discord.Embed(
         title="new distraction!", description=description, color=discord.Color.purple()
     )
+    embed.add_field(name="Suggested by", value=f"<@{author_id}>")
     await ctx.message.reply(embed=embed)
 
 

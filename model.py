@@ -18,3 +18,5 @@ class Distraction(Base):
     guild_id = sa.Column(sa.Integer, nullable=False)
     timestamp = sa.Column(sa.Integer, default=unix_timestamp)
     description = sa.Column(sa.String)
+    author_id = sa.Column(sa.Integer)
+    message_id = sa.Column(sa.Integer)
