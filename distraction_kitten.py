@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+import model
+
 import logging
 import random
-import time
 
 from dataclasses import dataclass
 
@@ -20,18 +21,6 @@ log = logging
 engine: sa.engine.Engine = sa.create_engine(
     "sqlite+pysqlite:///database.db", echo=True, future=True
 )
-
-mapper_registery = orm.registry()
-Base = mapper_registery.generate_base()
-
-
-class Distraction(Base):
-    __tablename__ = "distraction"
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    guild_id = sa.Column(sa.Integer, nullable=False)
-    timestamp = sa.Column(sa.Integer)
-    description = sa.Column(sa.String)
 
 
 @dataclass
@@ -80,9 +69,7 @@ async def distracticat(ctx: commands.Context, *, description: str):
     )
 
     async with ctx.channel.typing():
-        distraction = Distraction(
-            guild_id=ctx.guild.id, timestamp=int(time.time()), description=description
-        )
+        distraction = model.Distraction(guild_id=ctx.guild.id, description=description)
         with orm.Session(engine) as session:
             session.add(distraction)
             session.commit()
