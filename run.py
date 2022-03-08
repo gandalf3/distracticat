@@ -11,8 +11,8 @@ from sqlalchemy import orm
 
 from discord.ext import commands
 
-from bot.config import Config
-from bot import model
+from distracticat.config import Config
+from distracticat import model
 
 logging.basicConfig(level=logging.INFO)
 log = logging
