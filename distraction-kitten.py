@@ -7,7 +7,7 @@ import logging
 import json
 import random
 
-import chooser
+from distracticat import chooser
 
 logging.basicConfig(level=logging.INFO)
 log = logging
@@ -46,25 +46,26 @@ async def distracticat(ctx: commands.Context, *, distraction: str):
     )
     await ctx.message.reply(embed=embed)
 
+
 @bot.command()
 async def choose(ctx: commands.Context, *, choices_str: str):
-
     choices, feedback = chooser.parse_choices(choices_str)
 
     if feedback:
-        await ctx.send(feedback);
+        await ctx.send(feedback)
         return
 
-    if (len(choices) == 0):
-        await ctx.reply(f"That's a tough decision you're asking me to make you know. Let me get back to you on that one.")
+    if len(choices) == 0:
+        await ctx.reply(
+            f"That's a tough decision you're asking me to make you know. Let me get back to you on that one."
+        )
         return
 
-    if (len(choices) == 1):
+    if len(choices) == 1:
         await ctx.reply(f"That's a sound decision {ctx.author}")
     else:
         chosen = random.choice(choices)
-        await ctx.reply(f"Hm.. :thinking: I say go with {chosen}.");
-
+        await ctx.reply(f"Hm.. :thinking: I say go with {chosen}.")
 
 
 @bot.slash_command(guild_ids=servers)
