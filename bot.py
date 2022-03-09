@@ -12,7 +12,7 @@ from sqlalchemy import orm
 from discord.ext import commands
 
 from distracticat.config import Config
-from distracticat import model
+from distracticat import chooser, model
 
 logging.basicConfig(level=logging.INFO)
 log = logging
@@ -56,6 +56,28 @@ async def distracticat(ctx: commands.Context, *, description: str):
 # @bot.slash_command(guild_ids=config.guild_ids())
 # async def distracticat_scmd(ctx: discord.ApplicationContext):
 #     pass
+
+
+@bot.command()
+async def choose(ctx: commands.Context, *, choices_str: str):
+    choices, feedback = chooser.parse_choices(choices_str)
+
+    if feedback:
+        await ctx.send(feedback)
+        return
+
+    if len(choices) == 0:
+        await ctx.reply(
+            "That's a tough decision you're asking me to make you know. "
+            "Let me get back to you on that one."
+        )
+        return
+
+    if len(choices) == 1:
+        await ctx.reply(f"That's a sound decision {ctx.author}")
+    else:
+        chosen = random.choice(choices)
+        await ctx.reply(f"Hm.. :thinking: I say go with {chosen}.")
 
 
 @bot.event

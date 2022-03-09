@@ -13,3 +13,4 @@ PyYAML==6.0
 SQLAlchemy==1.4.31
 typing_extensions==4.1.1
 yarl==1.7.2
+pytest==7.0.1
