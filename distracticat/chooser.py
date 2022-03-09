@@ -1,7 +1,7 @@
 from typing import Optional
 import re
 
-from distracticat.emotes import kaomoji
+from distracticat.emotes import Kaomoji
 
 # Taken from https://stackoverflow.com/a/32640407
 def int_to_en(num):
@@ -106,7 +106,7 @@ def parse_choices(choices_str: str) -> tuple[Optional[list], Optional[str]]:
             facts += f" the only real choices are or and nothing! ..with a {perc_chance} chance of picking nothing hehe"
             choices = ["or"] * num_choosable_ors + [""]
 
-        feedback = f"h..hey you aren't trying to confuse me are you ??? w..well it wont work!!! I know {facts} {kaomoji.confident()}"
+        feedback = f"h..hey you aren't trying to confuse me are you ??? w..well it wont work!!! I know {facts} {Kaomoji.confident()}"
 
     # only or and ?
     elif all(map(lambda x: re.match(r"^[\s\?]*$", x), choices)):

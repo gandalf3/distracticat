@@ -11,8 +11,9 @@ from sqlalchemy import orm
 
 from discord.ext import commands
 
-from distracticat.config import Config
 from distracticat import chooser, model
+from distracticat.config import Config
+from distracticat.emotes import Reactions
 
 logging.basicConfig(level=logging.INFO)
 log = logging
@@ -31,9 +32,7 @@ bot = commands.Bot(command_prefix=config.command_prefix)
 async def distracticat(ctx: commands.Context, *, description: str):
     author_id, message_id = ctx.author.id, ctx.message.id
 
-    await ctx.channel.send(
-        random.choice(config.reactions).replace("<noise>", random.choice(config.noises))
-    )
+    await ctx.channel.send(Reactions.reaction())
 
     async with ctx.channel.typing():
         distraction = model.Distraction(

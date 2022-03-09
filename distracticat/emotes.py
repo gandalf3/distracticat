@@ -1,9 +1,10 @@
 import random
 
-class kaomoji:
+
+class Kaomoji:
     categories = {}
 
-    with open("kaomoji.txt") as f:
+    with open("data/kaomoji.txt") as f:
         for line in f:
             category, sep, kaomoji = line.partition(":")
             try:
@@ -14,3 +15,19 @@ class kaomoji:
     @classmethod
     def confident(cls):
         return random.choice(cls.categories["confident"])
+
+
+class Reactions:
+    reactions = []
+    noises = []
+
+    with open("data/reactions.txt") as f:
+        reactions = f.read().splitlines()
+
+    with open("data/noises.txt") as f:
+        noises = f.read().splitlines()
+
+    @classmethod
+    def reaction(cls):
+        noise = random.choice(cls.noises)
+        return random.choice(cls.reactions).replace("<noise>", noise)
