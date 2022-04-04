@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import logging
+import os
 import random
+import sys
 
 import discord
 import yaml
@@ -20,41 +22,62 @@ log = logging
 
 config = Config()
 
-engine: sa.engine.Engine = sa.create_engine(
-    "sqlite+pysqlite:///database.db", echo=True, future=True
-)
+database_url = os.environ["DATABASE_URL"]
+engine: sa.engine.Engine = sa.create_engine(database_url, echo=True, future=True)
 
 
 bot = commands.Bot(command_prefix=config.command_prefix)
 
 
-@bot.command()
-async def distracticat(ctx: commands.Context, *, description: str):
-    author_id, message_id = ctx.author.id, ctx.message.id
+async def add_distraction(
+    distraction: model.Distraction,
+    channel: discord.PartialMessageable,
+    reply,
+):
+    await channel.send(Reactions.reaction())
 
-    await ctx.channel.send(Reactions.reaction())
+    embed = discord.Embed(
+        title="new distraction!",
+        description=distraction.description,
+        color=discord.Color.purple(),
+    )
+    embed.add_field(name="Suggested by", value=f"<@{distraction.author_id}>")
 
-    async with ctx.channel.typing():
-        distraction = model.Distraction(
-            guild_id=ctx.guild.id,
-            description=description,
-            author_id=author_id,
-            message_id=message_id,
-        )
+    async with channel.typing():
         with orm.Session(engine) as session:
             session.add(distraction)
             session.commit()
 
-    embed = discord.Embed(
-        title="new distraction!", description=description, color=discord.Color.purple()
+    await reply(embed=embed)
+
+
+@bot.command(name="distracticat")
+async def distracticat_cmd(ctx: commands.Context, *, description: str):
+    author_id, message_id = ctx.author.id, ctx.message.id
+    distraction = model.Distraction(
+        guild_id=ctx.guild.id,
+        description=description,
+        author_id=author_id,
+        message_id=message_id,
     )
-    embed.add_field(name="Suggested by", value=f"<@{author_id}>")
-    await ctx.message.reply(embed=embed)
+    await add_distraction(distraction, ctx.channel, ctx.reply)
 
 
-# @bot.slash_command(guild_ids=config.guild_ids())
-# async def distracticat_scmd(ctx: discord.ApplicationContext):
-#     pass
+@bot.slash_command(name="distracticat", guild_ids=config.guild_ids())
+async def distracticat_scmd(ctx: discord.ApplicationContext, description: str):
+    author_id = ctx.author.id
+    distraction = model.Distraction(
+        guild_id=ctx.guild.id,
+        description=description,
+        author_id=author_id,
+    )
+    await add_distraction(distraction, ctx.channel, ctx.respond)
+
+
+@bot.command(name="commitfelicide")
+async def kill(ctx: commands.Context):
+    await ctx.reply("how could you do this? (ಡ‸ಡ)")
+    sys.exit()
 
 
 @bot.command()

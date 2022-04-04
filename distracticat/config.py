@@ -19,7 +19,10 @@ class Config:
         with open(path) as f:
             raw_config = yaml.safe_load(f)
 
-        self.servers = raw_config["servers"]
+        self.servers = [
+            Server(name=sv["name"], guild_id=int(sv["guild_id"]))
+            for sv in raw_config["servers"]
+        ]
 
         self.command_prefix = raw_config["command_prefix"] or "!"
 

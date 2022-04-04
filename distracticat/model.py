@@ -14,8 +14,8 @@ class Distraction(Base):
     __tablename__ = "distraction"
 
     id = sa.Column(sa.Integer, primary_key=True)
-    guild_id = sa.Column(sa.Integer, nullable=False)
-    timestamp = sa.Column(sa.Integer, default=unix_timestamp)
+    timestamp = sa.Column(sa.DateTime(timezone=True), server_default=sa.func.now())
     description = sa.Column(sa.String)
-    author_id = sa.Column(sa.Integer)
-    message_id = sa.Column(sa.Integer)
+    guild_id = sa.Column(sa.BigInteger)
+    author_id = sa.Column(sa.BigInteger)
+    message_id = sa.Column(sa.BigInteger)
