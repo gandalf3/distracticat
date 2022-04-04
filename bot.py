@@ -6,7 +6,8 @@ import random
 import sys
 
 import discord
-import yaml
+
+from dotenv import load_dotenv
 
 import sqlalchemy as sa
 from sqlalchemy import orm
@@ -20,13 +21,23 @@ from distracticat.emotes import Reactions
 logging.basicConfig(level=logging.INFO)
 log = logging
 
+load_dotenv()
+
+
+def getenv(key: str) -> str:
+    if (value := os.getenv(key)) is not None:
+        return value
+    else:
+        exit(f"{key} environment variable not specified")
+
+
+database_url = getenv("DATABASE_URL")
+discord_secret_token = getenv("DISCORD_SECRET_TOKEN")
+
 config = Config()
-
-database_url = os.environ["DATABASE_URL"]
-engine: sa.engine.Engine = sa.create_engine(database_url, echo=True, future=True)
-
-
 bot = commands.Bot(command_prefix=config.command_prefix)
+
+engine: sa.engine.Engine = sa.create_engine(database_url, echo=True, future=True)
 
 
 async def add_distraction(
@@ -107,7 +118,4 @@ async def on_ready():
     log.info(f"logged in as {bot.user}")
 
 
-with open("secret.yaml") as f:
-    secret_token = yaml.safe_load(f)["token"]
-
-bot.run(secret_token)
+bot.run(discord_secret_token)
